@@ -9,9 +9,13 @@ let isChecking = false;
 let matchedPairIds = new Set();
 let totalPairs = 0;
 
+const GAMES = [
+  { id: 'radicals-memory', name: 'Radicals Memory Game', icon: '🧠', start: initGame },
+];
+
 const nameModal = document.getElementById('name-modal');
 const nameInput = document.getElementById('player-name-input');
-const startBtn = document.getElementById('start-btn');
+const gameGrid = document.getElementById('game-grid');
 
 const winModal = document.getElementById('win-modal');
 const winPlayerLine = document.getElementById('win-player-line');
@@ -168,20 +172,41 @@ function initGame() {
   winModal.classList.add('hidden');
 }
 
-startBtn.addEventListener('click', () => {
-  const name = nameInput.value.trim();
-  if (!name) {
-    nameInput.focus();
-    return;
-  }
-  currentPlayer = name;
-  nameModal.classList.add('hidden');
-  initGame();
-});
+function updateGameGridState() {
+  const enabled = nameInput.value.trim().length > 0;
+  gameGrid.querySelectorAll('.game-card').forEach(btn => {
+    btn.disabled = !enabled;
+  });
+}
 
-nameInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') startBtn.click();
-});
+function renderGameGrid() {
+  gameGrid.innerHTML = '';
+  GAMES.forEach(game => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'game-card';
+    btn.innerHTML = `
+      <span class="game-icon">${game.icon}</span>
+      <span class="game-name">${game.name}</span>
+    `;
+    btn.addEventListener('click', () => {
+      const name = nameInput.value.trim();
+      if (!name) {
+        nameInput.focus();
+        return;
+      }
+      currentPlayer = name;
+      nameModal.classList.add('hidden');
+      game.start();
+    });
+    gameGrid.appendChild(btn);
+  });
+  updateGameGridState();
+}
+
+nameInput.addEventListener('input', updateGameGridState);
+
+renderGameGrid();
 
 playAgainBtn.addEventListener('click', () => {
   winModal.classList.add('hidden');

@@ -39,6 +39,10 @@ body {
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
 }
 
+.modal.modal-wide {
+  max-width: 480px;
+}
+
 .modal h1 {
   margin-top: 0;
   color: #182848;
@@ -76,6 +80,46 @@ body {
 .modal button:disabled {
   background: #aaa;
   cursor: not-allowed;
+}
+
+/* Game selection grid */
+.game-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.game-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #4b6cb7, #182848);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 18px 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s, background 0.2s;
+}
+
+.game-card .game-icon {
+  font-size: 2rem;
+}
+
+.game-card:hover:not(:disabled) {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.game-card:disabled {
+  background: #aaa;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 /* Game container */

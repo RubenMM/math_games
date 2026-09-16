@@ -8,7 +8,8 @@ and simple arithmetic.
 
 1. Open [index.html](index.html) in a browser (or serve the folder with any
    static file server).
-2. Enter your name to start.
+2. Enter your name, then pick a game from the grid (game tiles stay disabled
+   until a name is entered).
 3. Flip two cards at a time. If a question matches its answer, the pair stays
    revealed; otherwise both cards flip back.
 4. Match all pairs to win. Your best score (fewest steps) is saved per player
