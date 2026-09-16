@@ -77,6 +77,9 @@ function updateHud() {
 }
 
 function renderBoard(cards) {
+  const columns = Math.ceil(Math.sqrt(cards.length));
+  board.style.setProperty('--cols', columns);
+
   board.innerHTML = '';
   cards.forEach(card => {
     const cardEl = document.createElement('div');
