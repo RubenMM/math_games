@@ -5,8 +5,6 @@ const q = (prompt: string, options: string[], correctIndex: number) => ({ prompt
 // Ordered easy -> hard. Partly factored forms are wrong answers.
 export const factorization: RaceGame = {
   id: 'factorization',
-  title: 'Factorization',
-  instruction: 'Factor completely',
   baseMs: 5000,
   questions: [
     q('3x + 6', ['3(x + 2)', '3x(x + 2)', 'x(3 + 6)'], 0),

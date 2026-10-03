@@ -5,7 +5,7 @@ import { createSession } from '@/lib/session/store';
 
 export const POST = handle(async req => {
   const { gameId } = await req.json();
-  if (!getGame(gameId)) return fail(400, 'Unknown game');
+  if (!getGame(gameId)) return fail(400, 'unknownGame');
   const { code, hostToken } = await createSession(gameId);
   return NextResponse.json({ code, hostToken });
 });

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { DECK_CONFIG, type Pair } from '@/lib/decks';
+import { useI18n } from '@/lib/i18n/I18nProvider';
 
 const HIGH_SCORE_KEY = 'memoryGameHighScore';
 const MISMATCH_DELAY_MS = 900;
@@ -48,6 +49,7 @@ function saveHighScore(name: string, steps: number): boolean {
 }
 
 export default function MemoryGame({ player }: { player: string }) {
+  const { t } = useI18n();
   const [cards, setCards] = useState<Card[]>([]);
   const [flipped, setFlipped] = useState<string[]>([]);
   const [matched, setMatched] = useState<Set<number>>(new Set());
@@ -112,25 +114,25 @@ export default function MemoryGame({ player }: { player: string }) {
       {won && (
         <div className="modal-overlay">
           <div className="modal">
-            <h1>🎉 You won!</h1>
-            <p>Great job, {player}!</p>
-            <p>You finished in {steps} steps with {points} matches.</p>
+            <h1>🎉 {t('memory.won')}</h1>
+            <p>{t('memory.greatJob', { player })}</p>
+            <p>{t('memory.finished', { steps, points })}</p>
             <p>
               {won.isNewBest
-                ? `New personal best: ${best} steps!`
-                : `Your best is ${best} steps. Try to beat it next time!`}
+                ? t('memory.newBest', { best: best ?? steps })
+                : t('memory.yourBest', { best: best ?? steps })}
             </p>
-            <button onClick={start}>Play Again</button>
+            <button onClick={start}>{t('memory.playAgain')}</button>
           </div>
         </div>
       )}
 
       <div className="game-container">
         <header className="hud">
-          <div className="hud-item">Player: <span>{player}</span></div>
-          <div className="hud-item">Points: <span>{points}</span></div>
-          <div className="hud-item">Steps: <span>{steps}</span></div>
-          <div className="hud-item">Best: <span>{best ?? '-'}</span></div>
+          <div className="hud-item">{t('memory.player')}: <span>{player}</span></div>
+          <div className="hud-item">{t('memory.points')}: <span>{points}</span></div>
+          <div className="hud-item">{t('memory.steps')}: <span>{steps}</span></div>
+          <div className="hud-item">{t('memory.best')}: <span>{best ?? '-'}</span></div>
         </header>
         <main className="board" style={{ '--cols': columns } as React.CSSProperties}>
           {cards.map(card => {

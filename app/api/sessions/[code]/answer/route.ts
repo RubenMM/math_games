@@ -9,8 +9,8 @@ export const POST = handle(async (req, ctx: CodeContext) => {
   const session = await loadSession(ctx);
   const { playerId, stage, optionIndex } = await req.json();
   const player = await getPlayer<RaceState>(session.code, String(playerId));
-  if (!player) return fail(404, 'Player not found');
-  if (!player.state) return fail(409, 'Game has not started');
+  if (!player) return fail(404, 'playerNotFound');
+  if (!player.state) return fail(409, 'notStarted');
 
   const game = getGame(session.gameId);
   const now = Date.now();
