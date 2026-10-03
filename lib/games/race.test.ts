@@ -45,19 +45,19 @@ const playAll = (seed: number) => {
 };
 
 describe('submitAnswer', () => {
-  it('scores remaining ms for a correct answer and carries them forward', () => {
+  it('scores the ms left on the question and gives the next one its own full budget', () => {
     const start = startRace(0, 1);
     const { state, result } = submitAnswer(game, start, display(start, true), 1800);
     expect(result).toEqual({ correct: true, gained: 3200 }); // easy budget 5000
-    expect(state).toMatchObject({ stage: 2, points: 3200, carryMs: 3200, stageStartedAt: 1800 });
-    expect(viewFor(game, state, 1800).remainingMs).toBe(5000 + 3200); // second easy question
+    expect(state).toMatchObject({ stage: 2, points: 3200, stageStartedAt: 1800 });
+    expect(viewFor(game, state, 1800).remainingMs).toBe(5000); // next easy question: no carry-over
   });
 
-  it('gives 0 points and a fresh budget for a wrong answer', () => {
+  it('gives 0 points for a wrong answer', () => {
     const start = startRace(0, 1);
     const { state, result } = submitAnswer(game, start, display(start, false), 1000);
     expect(result).toEqual({ correct: false, gained: 0 });
-    expect(state).toMatchObject({ stage: 2, points: 0, carryMs: 0 });
+    expect(state).toMatchObject({ stage: 2, points: 0 });
     expect(viewFor(game, state, 1000).remainingMs).toBe(5000);
   });
 
@@ -104,7 +104,7 @@ describe('difficulty tiers', () => {
     const budgets: Record<string, number> = {};
     for (let i = 0; i < game.questions.length; i++) {
       budgets[currentQuestion(game, state).tier] = viewFor(game, state, state.stageStartedAt).remainingMs;
-      state = submitAnswer(game, state, display(state, false), 10).state; // wrong: no carry-over
+      state = submitAnswer(game, state, display(state, true), 10).state; // right and fast: still no carry-over
     }
     expect(budgets).toEqual({ easy: 5000, medium: 8000, hard: 12000 });
   });
@@ -138,7 +138,7 @@ describe('ranking', () => {
     id,
     name: id,
     joinedAt,
-    state: { stage, points, carryMs: 0, stageStartedAt: 0, finished: false, seed: 0 },
+    state: { stage, points, stageStartedAt: 0, finished: false, seed: 0 },
   });
   const players = [p('a', 10, 2, 3), p('b', 10, 3, 2), p('c', 50, 1, 1), p('d', 10, 3, 1)];
 

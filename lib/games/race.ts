@@ -2,7 +2,7 @@ import type { Player } from '@/lib/session/types';
 
 /**
  * Shared engine for "race against the clock" games: multiple-choice questions grouped in
- * difficulty tiers, a per-tier time budget, and carry-over of leftover time.
+ * difficulty tiers and a fixed time budget per question (set by its tier).
  * Everyone plays all easy questions, then medium, then hard; the order inside each tier and
  * the order of the options are shuffled per player (stable for a given seed) on the server,
  * so the client only ever sees display order and never the correct answer.
@@ -26,7 +26,6 @@ export interface RaceGame {
 export interface RaceState {
   stage: number; // 1-based index of the current question
   points: number;
-  carryMs: number; // leftover time from the previous (correct) answer
   stageStartedAt: number;
   finished: boolean;
   seed: number; // drives this player's option order
@@ -54,7 +53,6 @@ export interface LeaderRow {
 export const startRace = (now: number, seed = Math.floor(Math.random() * 2 ** 32)): RaceState => ({
   stage: 1,
   points: 0,
-  carryMs: 0,
   stageStartedAt: now,
   finished: false,
   seed,
@@ -102,12 +100,12 @@ function optionOrder(game: RaceGame, state: RaceState): number[] {
 }
 
 const remainingMs = (game: RaceGame, state: RaceState, now: number) =>
-  state.stageStartedAt + game.tierMs[currentQuestion(game, state).tier] + state.carryMs - now;
+  state.stageStartedAt + game.tierMs[currentQuestion(game, state).tier] - now;
 
 /**
  * `answer` is the index the player saw (display order), or null for no answer.
- * Correct and in time: points = ms left, and those ms carry into the next question.
- * Wrong, late or no answer: 0 points and the next question gets a fresh budget.
+ * Correct and in time: points = ms left on this question. Wrong, late or no answer: 0 points.
+ * Every question starts with its own full budget (no carry-over).
  */
 export function submitAnswer(
   game: RaceGame,
@@ -127,7 +125,6 @@ export function submitAnswer(
       ...state,
       stage: finished ? state.stage : state.stage + 1,
       points: state.points + gained,
-      carryMs: gained,
       stageStartedAt: now,
       finished,
     },
