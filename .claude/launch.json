@@ -2,10 +2,10 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "memory-game",
-      "runtimeExecutable": "node",
-      "runtimeArgs": [".claude/static-server.js"],
-      "port": 8791
+      "name": "math-games",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 3000
     }
   ]
 }

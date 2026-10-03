@@ -1,24 +1,33 @@
-# Memory Match: Math Edition
+# Math Games
 
-A browser-based memory matching game. Flip cards to pair each math question
-with its correct answer — multiplication, division, squares, square roots,
-and simple arithmetic.
+A Next.js (App Router, TypeScript) site with math games for students.
+Currently includes the Radicals Memory Game: flip cards to pair each radical
+expression with its simplified form.
+
+## Run locally
+
+```bash
+npm install
+npm run dev     # http://localhost:3000
+npm run build   # production build
+```
+
+Requires Node.js 20 or newer.
 
 ## How to play
 
-1. Open [index.html](index.html) in a browser (or serve the folder with any
-   static file server).
-2. Enter your name, then pick a game from the grid (game tiles stay disabled
-   until a name is entered).
-3. Flip two cards at a time. If a question matches its answer, the pair stays
+1. Enter your name, then pick a game from the grid (tiles stay disabled until
+   a name is entered).
+2. Flip two cards at a time. If a question matches its answer, the pair stays
    revealed; otherwise both cards flip back.
-4. Match all pairs to win. Your best score (fewest steps) is saved per player
+3. Match all pairs to win. Your best score (fewest steps) is saved per player
    name in the browser's local storage.
 
 ## Project structure
 
-- [index.html](index.html) — page structure and modals
-- [style.css](style.css) — layout and card-flip styling
-- [game.js](game.js) — game logic (deck building, matching, scoring)
-- [deck-config.js](deck-config.js) — the question/answer pairs; edit this to
-  change the game's content
+- `app/` — layout, global styles (`globals.css`) and the home page
+- `components/Home.tsx` — name entry and game selection grid (add new games to
+  the `GAMES` list)
+- `components/MemoryGame.tsx` — the memory game
+- `lib/decks.ts` — the question/answer pairs; edit this to change the game's
+  content
