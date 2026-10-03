@@ -31,3 +31,23 @@ Requires Node.js 20 or newer.
 - `components/MemoryGame.tsx` — the memory game
 - `lib/decks.ts` — the question/answer pairs; edit this to change the game's
   content
+
+## Live games (Factorization)
+
+Teachers host a lobby at `/host`; students join at `/join` with the 4-digit code.
+The teacher presses **Start**, everyone races through 20 questions (5 s each,
+leftover time carries over to the next question, points = ms remaining), and the
+host screen shows a live top-10 leaderboard. Teachers can remove players.
+
+- `lib/session/` — game-agnostic lobby/players on Redis (`store.ts`) and API helpers
+- `lib/games/race.ts` — shared timing/scoring engine (unit-tested: `npm test`)
+- `lib/games/factorization.ts` — the questions; add another file + `registry.ts`/`catalog.ts`
+  entries for a new race game
+- `app/api/sessions/**` — API routes; `components/session/` — host/join/play screens
+
+### Configuration
+
+Copy `.env.example` to `.env.local` and fill in an
+[Upstash Redis](https://console.upstash.com) REST URL and token (also set them in
+Vercel). Without them, a per-process in-memory store is used: fine for local
+development, but it will not work on Vercel.

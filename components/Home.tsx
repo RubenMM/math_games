@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
 import MemoryGame from './MemoryGame';
 
@@ -58,6 +59,9 @@ export default function Home() {
             </button>
           ))}
         </div>
+        <p className="mb-0 mt-5 text-sm">
+          <Link href="/join">Join a live game</Link> · <Link href="/host">Teacher: host a game</Link>
+        </p>
       </div>
     </div>
   );
