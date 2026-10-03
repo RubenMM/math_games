@@ -40,7 +40,9 @@ leftover time carries over to the next question, points = ms remaining), and the
 host screen shows a live top-10 leaderboard and, once everyone finishes (or on demand),
 a podium. Students scan a QR code on the host screen to join, see their final rank, and
 get answer options shuffled per player. The whole site is available in English and Spanish
-(EN/ES toggle; defaults to the browser language). Teachers can remove players.
+(EN/ES toggle; defaults to the browser language). Teachers can remove players, and can **End game** at any time (unfinished players keep their
+current score and see their rank). Names are checked against an English + Spanish profanity
+filter (`lib/session/names.ts`) when joining.
 
 - `lib/session/` — game-agnostic lobby/players on Redis (`store.ts`) and API helpers
 - `lib/games/race.ts` — shared timing/scoring/shuffle/ranking engine (unit-tested: `npm test`)

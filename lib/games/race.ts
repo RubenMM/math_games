@@ -129,6 +129,9 @@ export function viewFor(
   };
 }
 
+/** Finalises a player's race early (host ended the game): keeps stage and points. */
+export const endRace = (state: RaceState): RaceState => ({ ...state, finished: true });
+
 /** Everyone ranked by points, then furthest stage, then earliest to join. */
 export function rankPlayers(players: Player<RaceState>[]): LeaderRow[] {
   return players

@@ -1,4 +1,4 @@
-export type SessionStatus = 'lobby' | 'playing';
+export type SessionStatus = 'lobby' | 'playing' | 'finished';
 
 export interface Session {
   code: string;

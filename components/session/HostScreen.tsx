@@ -28,7 +28,8 @@ export default function HostScreen({ code }: { code: string }) {
   const { data: view, error: pollError, refresh } = usePoll<SessionView<LeaderRow>>(`/api/sessions/${code}`, 1000, !!hostToken);
 
   const allDone = !!view && view.players.length > 0 && view.finishedCount === view.players.length;
-  const podiumVisible = allDone || showPodium;
+  const ended = view?.status === 'finished';
+  const podiumVisible = allDone || ended || showPodium;
   useEffect(() => {
     if (podiumVisible) celebrate();
   }, [podiumVisible]);
@@ -48,7 +49,7 @@ export default function HostScreen({ code }: { code: string }) {
     }
   }
 
-  const playing = view.status === 'playing';
+  const playing = view.status !== 'lobby';
   const joinUrl = `${origin}/join?code=${code}`;
 
   return (
@@ -88,9 +89,18 @@ export default function HostScreen({ code }: { code: string }) {
                 <span className="text-sm font-bold text-violet-400">
                   {t('host.finishedCount', { done: view.finishedCount, total: view.players.length })}
                 </span>
-                {!allDone && (
+                {!allDone && !ended && (
                   <Button variant="secondary" className="px-3 py-1.5 text-sm" onClick={() => setShowPodium(v => !v)}>
                     {t(showPodium ? 'host.hidePodium' : 'host.showPodium')}
+                  </Button>
+                )}
+                {!ended && (
+                  <Button
+                    variant="danger"
+                    className="px-3 py-1.5 text-sm"
+                    onClick={() => window.confirm(t('host.endConfirm')) && act('/end', 'POST')}
+                  >
+                    {t('host.end')}
                   </Button>
                 )}
               </div>
