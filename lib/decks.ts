@@ -1,7 +1,9 @@
 // Deck configuration: question/answer pairs used to build the memory grid.
 // The board's column count adapts automatically to the number of pairs here.
 // Edit this array to change the game's content.
-const DECK_CONFIG = [
+export type Pair = { question: string; answer: string };
+
+export const DECK_CONFIG: Pair[] = [
   { "question": "√18", "answer": "3√2" },
   { "question": "√50", "answer": "5√2" },
   { "question": "√75", "answer": "5√3" },
