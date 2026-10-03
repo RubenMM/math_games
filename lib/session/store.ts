@@ -8,11 +8,12 @@ const sessionKey = (code: string) => `session:${code}`;
 const playersKey = (code: string) => `session:${code}:players`;
 
 export class SessionError extends Error {
+  // `message` is a stable error code; the client translates it.
   constructor(
-    message: string,
+    code: string,
     public status: number,
   ) {
-    super(message);
+    super(code);
   }
 }
 
@@ -31,7 +32,7 @@ export async function createSession(gameId: string): Promise<Session> {
     await kv.set(sessionKey(code), session, { ex: TTL_SECONDS });
     return session;
   }
-  throw new SessionError('Could not allocate a lobby code, try again', 503);
+  throw new SessionError('codeUnavailable', 503);
 }
 
 export const getSession = (code: string) => getKv().get<Session>(sessionKey(code));
@@ -51,12 +52,12 @@ export async function savePlayer<S>(code: string, player: Player<S>) {
 
 export async function addPlayer(session: Session, rawName: string): Promise<Player> {
   const name = rawName.trim().slice(0, MAX_NAME_LENGTH);
-  if (!name) throw new SessionError('Name is required', 400);
-  if (session.status !== 'lobby') throw new SessionError('This game has already started', 409);
+  if (!name) throw new SessionError('nameRequired', 400);
+  if (session.status !== 'lobby') throw new SessionError('gameStarted', 409);
 
   const players = await listPlayers(session.code);
   if (players.some(p => p.name.toLowerCase() === name.toLowerCase())) {
-    throw new SessionError('That name is already taken', 409);
+    throw new SessionError('nameTaken', 409);
   }
 
   const player: Player = { id: crypto.randomUUID(), name, joinedAt: Date.now(), state: null };
@@ -68,9 +69,9 @@ export const removePlayer = (code: string, id: string) => getKv().hdel(playersKe
 
 /** Moves the lobby to `playing` and gives every player their initial game state. */
 export async function startSession(session: Session, makeState: (now: number) => unknown) {
-  if (session.status !== 'lobby') throw new SessionError('Already started', 409);
+  if (session.status !== 'lobby') throw new SessionError('gameStarted', 409);
   const players = await listPlayers(session.code);
-  if (players.length === 0) throw new SessionError('No players have joined yet', 409);
+  if (players.length === 0) throw new SessionError('noPlayers', 409);
 
   const now = Date.now();
   await Promise.all(players.map(p => savePlayer(session.code, { ...p, state: makeState(now) })));

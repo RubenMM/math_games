@@ -37,10 +37,15 @@ Requires Node.js 20 or newer.
 Teachers host a lobby at `/host`; students join at `/join` with the 4-digit code.
 The teacher presses **Start**, everyone races through 20 questions (5 s each,
 leftover time carries over to the next question, points = ms remaining), and the
-host screen shows a live top-10 leaderboard. Teachers can remove players.
+host screen shows a live top-10 leaderboard and, once everyone finishes (or on demand),
+a podium. Students scan a QR code on the host screen to join, see their final rank, and
+get answer options shuffled per player. The whole site is available in English and Spanish
+(EN/ES toggle; defaults to the browser language). Teachers can remove players.
 
 - `lib/session/` — game-agnostic lobby/players on Redis (`store.ts`) and API helpers
-- `lib/games/race.ts` — shared timing/scoring engine (unit-tested: `npm test`)
+- `lib/games/race.ts` — shared timing/scoring/shuffle/ranking engine (unit-tested: `npm test`)
+- `lib/i18n/` — EN/ES dictionaries (`messages.ts`; add keys to both), provider and `useI18n()`.
+  API errors are returned as codes and translated on the client
 - `lib/games/factorization.ts` — the questions; add another file + `registry.ts`/`catalog.ts`
   entries for a new race game
 - `app/api/sessions/**` — API routes; `components/session/` — host/join/play screens

@@ -2,20 +2,22 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { useI18n } from '@/lib/i18n/I18nProvider';
+import type { MessageKey } from '@/lib/i18n/messages';
 import MemoryGame from './MemoryGame';
 
 type Game = {
   id: string;
-  name: string;
   icon: string;
   Component: React.ComponentType<{ player: string }>;
 };
 
 const GAMES: Game[] = [
-  { id: 'radicals-memory', name: 'Radicals Memory Game', icon: '🧠', Component: MemoryGame },
+  { id: 'radicals-memory', icon: '🧠', Component: MemoryGame },
 ];
 
 export default function Home() {
+  const { t } = useI18n();
   const [name, setName] = useState('');
   const [player, setPlayer] = useState('');
   const [gameId, setGameId] = useState<string | null>(null);
@@ -30,13 +32,13 @@ export default function Home() {
   return (
     <div className="modal-overlay">
       <div className="modal modal-wide">
-        <h1>Math Games</h1>
-        <p>Enter your name, then pick a game!</p>
-        <label htmlFor="player-name-input">Enter your name</label>
+        <h1>{t('home.title')}</h1>
+        <p>{t('home.subtitle')}</p>
+        <label htmlFor="player-name-input">{t('home.nameLabel')}</label>
         <input
           type="text"
           id="player-name-input"
-          placeholder="Your name"
+          placeholder={t('home.namePlaceholder')}
           maxLength={24}
           autoComplete="off"
           value={name}
@@ -55,12 +57,12 @@ export default function Home() {
               }}
             >
               <span className="game-icon">{game.icon}</span>
-              <span className="game-name">{game.name}</span>
+              <span className="game-name">{t(`game.${game.id}` as MessageKey)}</span>
             </button>
           ))}
         </div>
         <p className="mb-0 mt-5 text-sm">
-          <Link href="/join">Join a live game</Link> · <Link href="/host">Teacher: host a game</Link>
+          <Link href="/join">{t('home.joinLive')}</Link> · <Link href="/host">{t('home.host')}</Link>
         </p>
       </div>
     </div>

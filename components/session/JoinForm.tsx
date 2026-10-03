@@ -6,9 +6,11 @@ import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import Input from '@/components/ui/Input';
 import { api, playerIdKey, storage } from '@/lib/client/api';
+import { useI18n } from '@/lib/i18n/I18nProvider';
 
 export default function JoinForm() {
   const router = useRouter();
+  const { t, tError } = useI18n();
   const [code, setCode] = useState(useSearchParams().get('code') ?? '');
   const [name, setName] = useState('');
   const [error, setError] = useState('');
@@ -23,20 +25,20 @@ export default function JoinForm() {
       storage.set(playerIdKey(code.trim()), playerId);
       router.push(`/play/${code.trim()}`);
     } catch (err) {
-      setError((err as Error).message);
+      setError(tError((err as Error).message));
       setBusy(false);
     }
   }
 
   return (
     <Card className="w-full max-w-sm text-center">
-      <h1 className="m-0 mb-1 text-2xl font-bold">Join a game</h1>
-      <p className="m-0 mb-5 text-slate-500">Enter the code on the teacher&apos;s screen.</p>
+      <h1 className="m-0 mb-1 text-2xl font-bold">{t('join.title')}</h1>
+      <p className="m-0 mb-5 text-slate-500">{t('join.subtitle')}</p>
       <form onSubmit={join} className="flex flex-col gap-4">
-        <Input label="Game code" inputMode="numeric" maxLength={4} value={code} onChange={e => setCode(e.target.value)} />
-        <Input label="Your name" maxLength={24} autoComplete="off" value={name} onChange={e => setName(e.target.value)} />
+        <Input label={t('join.code')} inputMode="numeric" maxLength={4} value={code} onChange={e => setCode(e.target.value)} />
+        <Input label={t('join.name')} maxLength={24} autoComplete="off" value={name} onChange={e => setName(e.target.value)} />
         {error && <p className="m-0 text-sm text-red-600">{error}</p>}
-        <Button disabled={busy || code.trim().length !== 4 || !name.trim()}>Join</Button>
+        <Button disabled={busy || code.trim().length !== 4 || !name.trim()}>{t('join.button')}</Button>
       </form>
     </Card>
   );

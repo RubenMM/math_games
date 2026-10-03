@@ -20,7 +20,6 @@ export interface Player<S = unknown> {
 export interface SessionView<Row = unknown> {
   code: string;
   gameId: string;
-  title: string;
   status: SessionStatus;
   players: { id: string; name: string }[];
   leaderboard: Row[];

@@ -6,9 +6,12 @@ import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import { api, hostTokenKey, storage } from '@/lib/client/api';
 import { HOSTABLE_GAMES } from '@/lib/games/catalog';
+import { useI18n } from '@/lib/i18n/I18nProvider';
+import type { MessageKey } from '@/lib/i18n/messages';
 
 export default function HostPage() {
   const router = useRouter();
+  const { t, tError } = useI18n();
   const [error, setError] = useState('');
 
   async function create(gameId: string) {
@@ -17,18 +20,18 @@ export default function HostPage() {
       storage.set(hostTokenKey(code), hostToken);
       router.push(`/host/${code}`);
     } catch (e) {
-      setError((e as Error).message);
+      setError(tError((e as Error).message));
     }
   }
 
   return (
     <Card className="w-full max-w-sm text-center">
-      <h1 className="m-0 mb-1 text-2xl font-bold">Host a game</h1>
-      <p className="m-0 mb-5 text-slate-500">Pick a game to open a lobby for your class.</p>
+      <h1 className="m-0 mb-1 text-2xl font-bold">{t('host.title')}</h1>
+      <p className="m-0 mb-5 text-slate-500">{t('host.subtitle')}</p>
       <div className="flex flex-col gap-3">
         {HOSTABLE_GAMES.map(game => (
           <Button key={game.id} onClick={() => create(game.id)}>
-            {game.icon} {game.title}
+            {game.icon} {t(`game.${game.id}` as MessageKey)}
           </Button>
         ))}
       </div>

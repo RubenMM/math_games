@@ -1,17 +1,21 @@
+'use client';
+
 import Badge from '@/components/ui/Badge';
+import { useI18n } from '@/lib/i18n/I18nProvider';
 import type { LeaderRow } from '@/lib/games/race';
 
 export default function Leaderboard({ rows, onRemove }: { rows: LeaderRow[]; onRemove?: (row: LeaderRow) => void }) {
-  if (rows.length === 0) return <p className="text-slate-500">No scores yet.</p>;
+  const { t } = useI18n();
+  if (rows.length === 0) return <p className="text-slate-500">{t('board.empty')}</p>;
 
   return (
     <table className="w-full border-collapse text-left text-lg">
       <thead>
         <tr className="border-b-2 border-slate-100 text-sm text-slate-500">
           <th className="w-12 py-2">#</th>
-          <th>Name</th>
-          <th>Stage</th>
-          <th className="text-right">Points</th>
+          <th>{t('board.name')}</th>
+          <th>{t('board.stage')}</th>
+          <th className="text-right">{t('board.points')}</th>
           {onRemove && <th className="w-10" />}
         </tr>
       </thead>
@@ -21,13 +25,13 @@ export default function Leaderboard({ rows, onRemove }: { rows: LeaderRow[]; onR
             <td className="py-3 text-slate-400">{i + 1}</td>
             <td>{row.name}</td>
             <td>
-              Stage {row.stage} {row.finished && <Badge>Done</Badge>}
+              {t('board.stageN', { stage: row.stage })} {row.finished && <Badge>{t('board.done')}</Badge>}
             </td>
             <td className="text-right tabular-nums">{row.points.toLocaleString()}</td>
             {onRemove && (
               <td className="text-right">
                 <button
-                  aria-label={`Remove ${row.name}`}
+                  aria-label={t('host.remove', { name: row.name })}
                   onClick={() => onRemove(row)}
                   className="h-7 w-7 cursor-pointer rounded-full border-0 bg-transparent text-slate-400 hover:bg-red-100 hover:text-red-600"
                 >
