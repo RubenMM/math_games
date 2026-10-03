@@ -1,12 +1,17 @@
 import type { Player } from '@/lib/session/types';
 
 /**
- * Shared engine for "race against the clock" games: a fixed list of multiple-choice
- * questions, a per-question time budget, and carry-over of leftover time.
- * Options are shuffled per player (stable for a given seed + stage) on the server,
+ * Shared engine for "race against the clock" games: multiple-choice questions grouped in
+ * difficulty tiers and a fixed time budget per question (set by its tier).
+ * Everyone plays all easy questions, then medium, then hard; the order inside each tier and
+ * the order of the options are shuffled per player (stable for a given seed) on the server,
  * so the client only ever sees display order and never the correct answer.
  */
+export const TIERS = ['easy', 'medium', 'hard'] as const;
+export type Tier = (typeof TIERS)[number];
+
 export interface Question {
+  tier: Tier;
   prompt: string;
   options: string[];
   correctIndex: number; // index into `options` in authored order
@@ -14,14 +19,13 @@ export interface Question {
 
 export interface RaceGame {
   id: string;
-  baseMs: number;
+  tierMs: Record<Tier, number>; // base time per question for each tier
   questions: Question[];
 }
 
 export interface RaceState {
   stage: number; // 1-based index of the current question
   points: number;
-  carryMs: number; // leftover time from the previous (correct) answer
   stageStartedAt: number;
   finished: boolean;
   seed: number; // drives this player's option order
@@ -34,7 +38,7 @@ export interface RaceView {
   points: number;
   finished: boolean;
   remainingMs: number;
-  question: { prompt: string; options: string[] } | null;
+  question: { prompt: string; options: string[]; tier: Tier } | null;
   lastResult?: { correct: boolean; gained: number };
 }
 
@@ -49,7 +53,6 @@ export interface LeaderRow {
 export const startRace = (now: number, seed = Math.floor(Math.random() * 2 ** 32)): RaceState => ({
   stage: 1,
   points: 0,
-  carryMs: 0,
   stageStartedAt: now,
   finished: false,
   seed,
@@ -67,24 +70,42 @@ function random(seed: number) {
   };
 }
 
+function shuffled<T>(items: T[], next: () => number): T[] {
+  const out = items.slice();
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(next() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
+
+/** questionOrder[stage - 1] = question index: tiers in order, shuffled within each tier per player. */
+function questionOrder(game: RaceGame, seed: number): number[] {
+  const next = random((seed ?? 0) + 104729);
+  return TIERS.flatMap(tier =>
+    shuffled(
+      game.questions.flatMap((q, i) => (q.tier === tier ? [i] : [])),
+      next,
+    ),
+  );
+}
+
+export const currentQuestion = (game: RaceGame, state: RaceState): Question =>
+  game.questions[questionOrder(game, state.seed)[state.stage - 1]];
+
 /** order[displayIndex] = authored option index for the player's current stage. */
 function optionOrder(game: RaceGame, state: RaceState): number[] {
-  const order = game.questions[state.stage - 1].options.map((_, i) => i);
-  const next = random((state.seed ?? 0) + state.stage * 7919);
-  for (let i = order.length - 1; i > 0; i--) {
-    const j = Math.floor(next() * (i + 1));
-    [order[i], order[j]] = [order[j], order[i]];
-  }
-  return order;
+  const options = currentQuestion(game, state).options.map((_, i) => i);
+  return shuffled(options, random((state.seed ?? 0) + state.stage * 7919));
 }
 
 const remainingMs = (game: RaceGame, state: RaceState, now: number) =>
-  state.stageStartedAt + game.baseMs + state.carryMs - now;
+  state.stageStartedAt + game.tierMs[currentQuestion(game, state).tier] - now;
 
 /**
  * `answer` is the index the player saw (display order), or null for no answer.
- * Correct and in time: points = ms left, and those ms carry into the next question.
- * Wrong, late or no answer: 0 points and the next question gets a fresh budget.
+ * Correct and in time: points = ms left on this question. Wrong, late or no answer: 0 points.
+ * Every question starts with its own full budget (no carry-over).
  */
 export function submitAnswer(
   game: RaceGame,
@@ -94,7 +115,7 @@ export function submitAnswer(
 ): { state: RaceState; result: { correct: boolean; gained: number } } {
   const left = remainingMs(game, state, now);
   const chosen = answer === null ? undefined : optionOrder(game, state)[answer];
-  const correct = left > 0 && chosen === game.questions[state.stage - 1].correctIndex;
+  const correct = left > 0 && chosen === currentQuestion(game, state).correctIndex;
   const gained = correct ? left : 0;
   const finished = state.stage >= game.questions.length;
 
@@ -104,7 +125,6 @@ export function submitAnswer(
       ...state,
       stage: finished ? state.stage : state.stage + 1,
       points: state.points + gained,
-      carryMs: gained,
       stageStartedAt: now,
       finished,
     },
@@ -117,14 +137,14 @@ export function viewFor(
   now: number,
   lastResult?: RaceView['lastResult'],
 ): RaceView {
-  const q = game.questions[state.stage - 1];
+  const q = state.finished ? null : currentQuestion(game, state);
   return {
     stage: state.stage,
     total: game.questions.length,
     points: state.points,
     finished: state.finished,
     remainingMs: state.finished ? 0 : Math.max(0, remainingMs(game, state, now)),
-    question: state.finished ? null : { prompt: q.prompt, options: optionOrder(game, state).map(i => q.options[i]) },
+    question: q ? { prompt: q.prompt, options: optionOrder(game, state).map(i => q.options[i]), tier: q.tier } : null,
     lastResult,
   };
 }

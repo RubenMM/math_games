@@ -35,8 +35,9 @@ Requires Node.js 20 or newer.
 ## Live games (Factorization)
 
 Teachers host a lobby at `/host`; students join at `/join` with the 4-digit code.
-The teacher presses **Start**, everyone races through 20 questions (5 s each,
-leftover time carries over to the next question, points = ms remaining), and the
+The teacher presses **Start**, everyone races through 20 questions in three tiers — 10 easy (20 s each), 5 medium (40 s),
+5 hard (60 s). Everyone plays easy → medium → hard, with the order inside each tier shuffled per
+player. Each question has its own time (no carry-over); points = ms left on that question, and the
 host screen shows a live top-10 leaderboard and, once everyone finishes (or on demand),
 a podium. Students scan a QR code on the host screen to join, see their final rank, and
 get answer options shuffled per player. The whole site is available in English and Spanish
