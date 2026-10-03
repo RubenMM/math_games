@@ -26,8 +26,8 @@ export default function HostPage() {
 
   return (
     <Card className="w-full max-w-sm text-center">
-      <h1 className="m-0 mb-1 text-2xl font-bold">{t('host.title')}</h1>
-      <p className="m-0 mb-5 text-slate-500">{t('host.subtitle')}</p>
+      <h1 className="m-0 mb-1 text-3xl font-extrabold">🎓 {t('host.title')}</h1>
+      <p className="m-0 mb-5 text-violet-400">{t('host.subtitle')}</p>
       <div className="flex flex-col gap-3">
         {HOSTABLE_GAMES.map(game => (
           <Button key={game.id} onClick={() => create(game.id)}>
@@ -35,7 +35,7 @@ export default function HostPage() {
           </Button>
         ))}
       </div>
-      {error && <p className="mb-0 mt-4 text-sm text-red-600">{error}</p>}
+      {error && <p className="mb-0 mt-4 text-sm font-bold text-rose-600">{error}</p>}
     </Card>
   );
 }

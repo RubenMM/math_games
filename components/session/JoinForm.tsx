@@ -32,12 +32,12 @@ export default function JoinForm() {
 
   return (
     <Card className="w-full max-w-sm text-center">
-      <h1 className="m-0 mb-1 text-2xl font-bold">{t('join.title')}</h1>
-      <p className="m-0 mb-5 text-slate-500">{t('join.subtitle')}</p>
+      <h1 className="m-0 mb-1 text-3xl font-extrabold">🎮 {t('join.title')}</h1>
+      <p className="m-0 mb-5 text-violet-400">{t('join.subtitle')}</p>
       <form onSubmit={join} className="flex flex-col gap-4">
         <Input label={t('join.code')} inputMode="numeric" maxLength={4} value={code} onChange={e => setCode(e.target.value)} />
         <Input label={t('join.name')} maxLength={24} autoComplete="off" value={name} onChange={e => setName(e.target.value)} />
-        {error && <p className="m-0 text-sm text-red-600">{error}</p>}
+        {error && <p className="m-0 text-sm font-bold text-rose-600">{error}</p>}
         <Button disabled={busy || code.trim().length !== 4 || !name.trim()}>{t('join.button')}</Button>
       </form>
     </Card>

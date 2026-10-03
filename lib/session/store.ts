@@ -1,4 +1,5 @@
 import { getKv } from '@/lib/redis';
+import { isAllowedName } from './names';
 import type { Player, Session } from './types';
 
 const TTL_SECONDS = 60 * 60 * 3;
@@ -54,6 +55,7 @@ export async function addPlayer(session: Session, rawName: string): Promise<Play
   const name = rawName.trim().slice(0, MAX_NAME_LENGTH);
   if (!name) throw new SessionError('nameRequired', 400);
   if (session.status !== 'lobby') throw new SessionError('gameStarted', 409);
+  if (!isAllowedName(name)) throw new SessionError('nameNotAllowed', 400);
 
   const players = await listPlayers(session.code);
   if (players.some(p => p.name.toLowerCase() === name.toLowerCase())) {
@@ -76,4 +78,12 @@ export async function startSession(session: Session, makeState: (now: number) =>
   const now = Date.now();
   await Promise.all(players.map(p => savePlayer(session.code, { ...p, state: makeState(now) })));
   await getKv().set(sessionKey(session.code), { ...session, status: 'playing' }, { ex: TTL_SECONDS });
+}
+
+/** Ends a running game: every unfinished player is finalised (keeping stage and points). */
+export async function endSession(session: Session, finish: (state: never) => unknown) {
+  if (session.status !== 'playing') throw new SessionError('notPlaying', 409);
+  const players = await listPlayers<never>(session.code);
+  await Promise.all(players.map(p => (p.state ? savePlayer(session.code, { ...p, state: finish(p.state) }) : null)));
+  await getKv().set(sessionKey(session.code), { ...session, status: 'finished' }, { ex: TTL_SECONDS });
 }
