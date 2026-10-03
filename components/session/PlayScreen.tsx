@@ -20,6 +20,8 @@ const ANSWER_STYLES = [
   { color: 'bg-emerald-500 border-emerald-800 hover:bg-emerald-400', shape: '■' },
 ];
 
+const TIER_COLORS = { easy: 'bg-emerald-500', medium: 'bg-amber-500', hard: 'bg-rose-500' };
+
 export default function PlayScreen({ code }: { code: string }) {
   const { t } = useI18n();
   const [playerId, setPlayerId] = useState<string | null | undefined>(undefined);
@@ -129,14 +131,14 @@ export default function PlayScreen({ code }: { code: string }) {
   const wrong = race.lastResult && !race.lastResult.correct;
 
   return (
-    <Card key={race.stage} className={`w-full max-w-xl ${wrong ? 'animate-[shake_0.4s_ease-out]' : ''}`}>
+    <Card className="w-full max-w-xl">
       <div className="mb-4 flex items-center justify-between text-sm font-extrabold text-violet-400">
         <span className="flex items-center gap-2 whitespace-nowrap">
           <Avatar name={me.name} className="text-3xl" />
           {t('play.stage', { stage: race.stage, total: race.total })}
         </span>
         {streak >= 2 && (
-          <span key={streak} className="animate-[pop_0.3s_ease-out] rounded-full bg-orange-100 px-3 py-1 text-base text-orange-600">
+          <span key={streak} className="animate-[fade-up_0.15s_ease-out] rounded-full bg-orange-100 px-3 py-1 text-base text-orange-600">
             🔥 ×{streak}
           </span>
         )}
@@ -149,10 +151,12 @@ export default function PlayScreen({ code }: { code: string }) {
         />
       </div>
       <p className="m-0 mb-1 text-center text-sm font-bold text-violet-400">
-        {t(`instruction.${me.gameId}` as MessageKey)} · <span className={urgent ? 'text-rose-500' : ''}>⏱ {(left / 1000).toFixed(1)}s</span>
+        {t(`instruction.${me.gameId}` as MessageKey)} ·{' '}
+        <span className={`rounded-full px-2 py-0.5 text-white ${TIER_COLORS[race.question!.tier]}`}>{t(`tier.${race.question!.tier}`)}</span> ·{' '}
+        <span className={urgent ? 'text-rose-500' : ''}>⏱ {(left / 1000).toFixed(1)}s</span>
       </p>
       <p className="mb-6 mt-0 text-center text-5xl font-extrabold">{race.question!.prompt}</p>
-      <div className="flex flex-col gap-3">
+      <div key={`options-${race.stage}`} className={`flex flex-col gap-3 ${wrong ? 'animate-[shake_0.3s_ease-out]' : ''}`}>
         {race.question!.options.map((option, i) => {
           const style = ANSWER_STYLES[i % ANSWER_STYLES.length];
           return (
@@ -169,8 +173,8 @@ export default function PlayScreen({ code }: { code: string }) {
       </div>
       {race.lastResult && (
         <p
-          key={race.stage}
-          className={`mb-0 mt-4 animate-[pop_0.35s_ease-out] text-center text-xl font-extrabold ${race.lastResult.correct ? 'text-emerald-500' : 'text-rose-500'}`}
+          key={`feedback-${race.stage}`}
+          className={`mb-0 mt-4 animate-[fade-up_0.15s_ease-out] text-center text-xl font-extrabold ${race.lastResult.correct ? 'text-emerald-500' : 'text-rose-500'}`}
         >
           {race.lastResult.correct ? `✅ ${t('play.correct', { gained: race.lastResult.gained.toLocaleString() })}` : `💪 ${t('play.wrong')}`}
         </p>
